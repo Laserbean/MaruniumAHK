@@ -39,10 +39,22 @@ SetWorkingDir, %A_ScriptDir%
 
     Return
 
-
     +^s::
         Send {F12}
 
+    Return
+
+    ^+c::
+        Clipboard := ""
+        Send, ^{c}
+        ClipWait, 0.25,
+        if ErrorLevel
+        {
+            MsgBox, The attempt to copy text onto the clipboard failed.
+        }
+
+        StringReplace,Clipboard,Clipboard,`n,,A
+        StringReplace,Clipboard,Clipboard,`r,,A
     Return
 
 #IfWinActive
@@ -57,8 +69,8 @@ Clipboardbackup := ""
 Return
 
 #IfWinActive ahk_exe WINWORD.EXE
-    +^s::
-        Send {F12}
++^s::
+    Send {F12}
 
-    Return
+Return
 #IfWinActive
