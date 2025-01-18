@@ -1,0 +1,92 @@
+#SingleInstance, Force
+SendMode Input
+SetWorkingDir, %A_ScriptDir%
+
+
+#Include ../ahkextrafunctions.ahk
+
+^+r::
+    WaitForKeyRelease("Ctrl")
+    SavedClipboard := ClipboardAll
+    Clipboard := "" ; Clear clipboard
+    SendInput, ^c ; Copy selected text to clipboard
+    ClipWait, 1 ; Wait for clipboard to contain data
+    if ErrorLevel ; If no text is selected, exit
+    {
+        Clipboard := SavedClipboard ; Restore the clipboard contents
+        return
+    }
+    StringGetPos, UnderscorePos, Clipboard, _ ; Check if underscore is present
+    if (UnderscorePos > 0) ; If underscore is present, replace underscores with spaces
+        StringReplace, Clipboard, Clipboard, _, %A_Space%, All
+    else ; If no underscore is present, replace spaces with underscores
+        StringReplace, Clipboard, Clipboard, %A_Space%, _, All
+    SendInput, ^{v} ; Paste modified text
+
+    Sleep, 300
+    Clipboard := SavedClipboard
+return
+
+^+!t::
+    WaitForKeyRelease("Ctrl")
+    SavedClipboard := ClipboardAll
+    Clipboard := "" ; Clear clipboard
+        SendInput, ^c ; Copy selected text to clipboard
+    ClipWait, 1 ; Wait for clipboard to contain data
+    if ErrorLevel ; If no text is selected, exit
+    {
+        Clipboard := SavedClipboard ; Restore the clipboard contents
+        return
+    }
+
+StringReplace, Clipboard, Clipboard, %A_Space%, , All
+    SendInput, ^{v} ; Paste modified text
+    Sleep, 300
+    Clipboard := SavedClipboard
+Return
+
+
++F3::
+    WaitForKeyRelease("Shift")
+
+    OriginalClipboard := ClipboardAll
+
+    Clipboard := "" ; Clear clipboard
+    SendInput, ^c ; Copy selected text
+    ClipWait, 1 ; Wait for clipboard to contain data
+    if ErrorLevel ; If no text is selected, exit
+    {
+        Clipboard := OriginalClipboard ; Restore the clipboard contents
+        return
+    }
+    Sleep, 300
+
+    ToolTip, %Clipboard%
+
+    StringLower, LowerText, Clipboard
+    StringUpper, UpperText, Clipboard
+    StringUpper, FirstUpperText, Clipboard, T
+
+    ; Cycle between lowercase, uppercase, and first letter uppercase
+    if (Clipboard == LowerText) {
+        Clipboard := UpperText
+    } else if (Clipboard == UpperText) {
+        Clipboard := FirstUpperText
+    } else {
+        Clipboard := LowerText
+    }
+
+    ToolTip, %Clipboard%
+
+    Sleep, 300
+    ; Paste the modified text
+    SendInput, ^v
+    ToolTip
+
+    Sleep, 300
+
+    ; LenAfter := StrLen(Clipboard)
+
+    ; Send,{Shift down}{Left %LenAfter%}{Shift up}
+    Clipboard := OriginalClipboard
+return
