@@ -2,6 +2,8 @@
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
+#Include WindowResize.ahk
+#Include WinMove.ahk
 
 #Include create_text_file.ahk
 #Include shortcut_parent.ahk
@@ -11,3 +13,4 @@ SetWorkingDir, %A_ScriptDir%
 #Include ExcelScript.ahk
 
 #Include symbol_type.ahk
+

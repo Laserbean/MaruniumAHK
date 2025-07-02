@@ -65,8 +65,34 @@ return
 
     ; Get the initial mouse position and window id, and
     ; abort if the window is maximized.
+
+    SysGet, X1, 76
+    SysGet, Y1, 77
+    SysGet, Width, 78
+    SysGet, Height, 79
+
+    CoordMode, Mouse, Screen
+
+    CoordMode, ToolTip, Screen
+
     MouseGetPos,KDE_X1,KDE_Y1,KDE_id
-    WinGet,KDE_Win,MinMax,ahk_id %KDE_id%
+    WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
+
+    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1) {
+        ; ; WinGetTitle, WinTitle, ahk_id %KDE_id%
+        ; WinMaximize,  ahk_id %KDE_id%
+        ; ; ControlSend, Control, #{up} , WinTitle
+        WinGet, state, MinMax, ahk_id %KDE_id%
+
+        if (state = 1) {
+            ; Already maximized → restore to normal
+            WinRestore, ahk_id %KDE_id%
+        } else {
+            ; Not maximized → maximize it
+            WinMaximize, ahk_id %KDE_id%
+        }
+    }
+
     If KDE_Win
         return
     ; Get the initial window position.
@@ -86,19 +112,40 @@ return
         KDE_WinX2 := (KDE_WinX1 + KDE_X2) ; Apply this offset to the window position.
         KDE_WinY2 := (KDE_WinY1 + KDE_Y2)
 
-        ; WinMove,ahk_id %KDE_id%,,%KDE_WinX2%,%KDE_WinY2% ; Move the window to the new position.
+        WinMove,ahk_id %KDE_id%,,%KDE_WinX2%,%KDE_WinY2% ; Move the window to the new position.
 
         ; sposX := xpos + _x0
         ; sposY := ypos + _y0
 
         ; sposx2 := xpos + _x1
         ; sposy2 := ypos + _y1
-        lineColour := "0xFF0000" ; Red color
-        ; ToolTip, % KDE_WinX2 " " KDE_WinY2 " "  win_width " "  win_height
-        ToolTip, % "  ", 5 + KDE_WinX2, 5 + KDE_WinY2, 1
-        ToolTip, % "  ", 5 + KDE_WinX2 + win_width, 5 + KDE_WinY2, 2
-        ToolTip, % "  ", 5 + KDE_WinX2, 5 + KDE_WinY2 + win_height, 3
-        ToolTip, % "  ", 5 + KDE_WinX2 + win_width, 5 + KDE_WinY2 + win_height, 4
+
+        ; ; ; ; lineColour := "0xFF0000" ; Red color
+        ; ; ; ToolTip, % KDE_WinX2 " " KDE_WinY2 " "  win_width " "  win_height
+        ; ; ; if
+        ; ; xval := 5 + KDE_WinX2
+        ; ; yval := 5 + KDE_WinY2
+
+        ; ; ; if (xval >= 0) {
+        ; ; ;     if (yval >= o) {
+        ; ; ;         ToolTip, % " a " xval " " yval, xval, yval, 1
+        ; ; ;     }
+        ; ; ;     if (yval + win_height <= Height) {
+        ; ; ;         ToolTip, % " c ", xval, yval + win_height, 3
+        ; ; ;     }
+        ; ; ; }
+        ; ; ; if (xval + win_width <= Width) {
+        ; ; ;     if (yval >= o) {
+        ; ; ;         ToolTip, % " b ", xval + win_width, yval, 2
+        ; ; ;     }
+        ; ; ;     if (yval + win_height <= Height) {
+        ; ; ;         ToolTip, % " d ", xval + win_width, yval + win_height, 4
+        ; ; ;     }
+        ; ; ; }
+        ; ; ToolTip, % " ", xval, yval, 1
+        ; ; ToolTip, % " ", xval, yval + win_height, 3
+        ; ; ToolTip, % " ", xval + win_width, yval, 2
+        ; ; ToolTip, % " ", xval + win_width, yval + win_height, 4
 
         ; DrawRectangle2(lineColour, KDE_WinX2, KDE_WinY2, win_width, win_height, 100)
     }
@@ -119,6 +166,7 @@ return
 ; ;     SysGet, Height, 79
 ; ; }
 
++#RButton::
 #RButton::
     ; If DoubleAlt
     ; {
@@ -135,6 +183,10 @@ return
     ; Get the initial mouse position and window id, and
     ; abort if the window is maximized.
     MouseGetPos,KDE_X1,KDE_Y1,KDE_id
+
+    init_x := KDE_X1
+    init_y := KDE_Y1
+
     WinGet,KDE_Win,MinMax,ahk_id %KDE_id%
     If KDE_Win
         return
@@ -155,7 +207,19 @@ return
         GetKeyState,KDE_Button,RButton,P ; Break if button has been released.
         If KDE_Button = U
             break
-        MouseGetPos,KDE_X2,KDE_Y2 ; Get the current mouse position.
+        MouseGetPos, KDE_X2, KDE_Y2 ; Get the current mouse position.
+
+        if (GetKeyState("LShift", "P") ){
+            ; ToolTip, TEST %KDE_X2% %KDE_Y2% %init_x% %init_y%
+
+            if (Abs(KDE_X2 - init_x) < Abs(KDE_Y2 - init_y)) {
+                KDE_X2 := init_x
+            }
+            else {
+                KDE_Y2 := init_y
+            }
+        }
+        
         ; Get the current window position and size.
         WinGetPos,KDE_WinX1,KDE_WinY1,KDE_WinW,KDE_WinH,ahk_id %KDE_id%
         KDE_X2 -= KDE_X1 ; Obtain an offset from the initial mouse position.
@@ -178,11 +242,11 @@ return
 ^#!MButton::
     ; If DoubleAlt
     ; {
-        MouseGetPos,,,KDE_id
-        WinClose,ahk_id %KDE_id%
-        ; DoubleAlt := false
-        ; return
-    ; }
+    MouseGetPos,,,KDE_id
+    WinClose,ahk_id %KDE_id%
+; DoubleAlt := false
+; return
+; }
 return
 
 ; ; This detects "double-clicks" of the alt key.
