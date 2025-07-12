@@ -3,7 +3,14 @@ SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
 
-#Include LaserbeanAHK/KeyRelease.ahk
+WaitForKeyRelease(keyToWaitFor) { ;from laserbeanAHK. But it's annoying to have submodules. 
+    Loop {
+        if (!GetKeyState(keyToWaitFor, "P")) {
+            break ; Exit the loop if the specified key is not pressed
+        }
+        Sleep, 10 ; Sleep for 10 milliseconds to reduce CPU usage
+    }
+}
 
 ^+r::
     WaitForKeyRelease("Ctrl")
@@ -31,7 +38,7 @@ return
     WaitForKeyRelease("Ctrl")
     SavedClipboard := ClipboardAll
     Clipboard := "" ; Clear clipboard
-        SendInput, ^c ; Copy selected text to clipboard
+    SendInput, ^c ; Copy selected text to clipboard
     ClipWait, 1 ; Wait for clipboard to contain data
     if ErrorLevel ; If no text is selected, exit
     {
@@ -39,12 +46,11 @@ return
         return
     }
 
-StringReplace, Clipboard, Clipboard, %A_Space%, , All
+    StringReplace, Clipboard, Clipboard, %A_Space%, , All
     SendInput, ^{v} ; Paste modified text
     Sleep, 300
     Clipboard := SavedClipboard
 Return
-
 
 +F3::
     WaitForKeyRelease("Shift")
