@@ -18,7 +18,7 @@ Menu, LaunchMenu, Add  ; Creates the empty submenu
 Menu, Tray, NoStandard
 Menu, Tray, Add, Launch Script..., ShowScriptMenu
 Menu, Tray, Add, Launch All Scripts..., LaunchScripts
-Menu, Tray, Add, Running Scripts, ShowRunning
+Menu, Tray, Add, Running Scripts, ShowRunningMenu
 Menu, Tray, Add, Edit Script List..., EditScriptList
 Menu, Tray, Add, Manage Scripts..., ShowScriptManager
 
@@ -65,13 +65,6 @@ LaunchScriptF(script) {
         MsgBox, 48, Already Running, "%script%" is already running.
         return
     }
-    ; Run, %script%, , , newPID
-    ; Run, %A_AhkPath% "%script%", , , newPID
-    ; SplitPath, script, , , ext
-    ; if (ext = "ahk")
-    ;     Run, %A_AhkPath% "%script%", , , newPID
-    ; else
-    ;     Run, %script%, , , newPID
     SplitPath, script, , , ext
     if (ext = "ahk")
         Run, %A_AhkPath% "%script%", , Hide, newPID
@@ -86,17 +79,47 @@ LaunchScriptF(script) {
     pids[script] := newPID
 }
 
-ShowRunning:
-    output := ""
+ShowRunningMenu:
+    Gui, RunningScripts:New, , Running Scripts
+    Gui, RunningScripts:Font, s10
+    row := 0
     for script, pid in pids
     {
-        if ProcessExist(pid)
-            output .= script " (PID: " pid ")\n"
+        if ProcessExist(pid) {
+            row++
+            yPos := row * 30
+            yBtn := yPos - 2
+            Gui, RunningScripts:Add, Text, x10 y%yPos% w300 vScriptText%row%, %script% (PID: %pid%)
+            Gui, RunningScripts:Add, Button, x320 y%yBtn% w60 gStopScript vStopBtn%row%, Stop
+            GuiControl,, StopBtn%row%, %script%  ; Store script name in button's text
+        }
     }
-    if (output = "")
-        output := "No scripts are currently running."
-    MsgBox, 64, Running Scripts, %output%
+    if (row = 0)
+        Gui, RunningScripts:Add, Text, x10 y10, No scripts are currently running.
+    Gui, RunningScripts:Show, AutoSize Center
 return
+
+StopScript:
+    GuiControlGet, btn, RunningScripts:, %A_GuiControl%
+    script := btn
+    if (pids.HasKey(script) && ProcessExist(pids[script])) {
+        Process, Close, % pids[script]
+        pids.Delete(script)
+        Gui, RunningScripts:Destroy
+        Gosub, ShowRunningMenu
+    }
+return
+; ShowRunning:
+;     output := ""
+;     for script, pid in pids
+;     {
+;         if ProcessExist(pid)
+;             output .= script " (PID: " pid ")\n"
+;     }
+;     if (output = "")
+;         output := "No scripts are currently running."
+;     MsgBox, 64, Running Scripts, %output%
+; return
 
 CloseAllScripts:
     for script, pid in pids
