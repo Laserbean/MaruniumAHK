@@ -109,17 +109,6 @@ StopScript:
         Gosub, ShowRunningMenu
     }
 return
-; ShowRunning:
-;     output := ""
-;     for script, pid in pids
-;     {
-;         if ProcessExist(pid)
-;             output .= script " (PID: " pid ")\n"
-;     }
-;     if (output = "")
-;         output := "No scripts are currently running."
-;     MsgBox, 64, Running Scripts, %output%
-; return
 
 CloseAllScripts:
     for script, pid in pids
@@ -138,7 +127,30 @@ EditScriptList:
         text .= s "`n"
     StringTrimRight, text, text, 1  ; Remove final newline
 
-    InputBox, newList, Edit Script Paths, One file per line.`nThese can be .ahk or .exe paths., , 500, 400, , , , , %text%
+    ; InputBox, newList, Edit Script Paths, One file per line.`nThese can be .ahk or .exe paths., , 500, 400, , , , , %text%
+    ; If InputBox is not multiline, use an Edit GUI instead:
+    ; Comment out the above InputBox and use the following:
+
+    Gui, EditScriptList:New, , Edit Script Paths
+    Gui, EditScriptList:Add, Edit, vScriptEdit w480 h300, %text%
+    Gui, EditScriptList:Add, Button, gSaveEditScriptList x10 y320 w100, Save
+    Gui, EditScriptList:Add, Button, gCancelEditScriptList x120 y320 w100, Cancel
+    Gui, EditScriptList:Show, w500 h360 Center
+; Gui, EditScriptList:+Resize
+
+return
+
+SaveEditScriptList:
+    GuiControlGet, newList, EditScriptList:, ScriptEdit
+    Gui, EditScriptList:Destroy
+    goto AfterEditScriptList
+return
+
+CancelEditScriptList:
+    Gui, EditScriptList:Destroy
+return
+
+AfterEditScriptList:
     if (ErrorLevel)
         return  ; Cancelled
 
@@ -157,7 +169,9 @@ ShowScriptManager:
     Gui, ScriptManager:New, , Script List Manager
     Gui, ScriptManager:Add, ListBox, vScriptList w400 h200
     for i, s in scripts
+    {
         GuiControl,, ScriptList, %s%
+    }
 
     Gui, ScriptManager:Add, Button, gAddScript, Add
     Gui, ScriptManager:Add, Button, gRemoveScript x+10, Remove
