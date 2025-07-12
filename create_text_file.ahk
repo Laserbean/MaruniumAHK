@@ -17,6 +17,7 @@
 
 ; Only run when Windows Explorer or Desktop is active
 ; Ctrl+Alt+N
+#SingleInstance, Force
 
 
 #IfWinActive ahk_class CabinetWClass

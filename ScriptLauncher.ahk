@@ -5,11 +5,11 @@ SetWorkingDir %A_ScriptDir%
 
 ; Define your scripts here
 iniFile := A_ScriptDir "\ScriptLauncher.ini"
-; pids := {}
+; scriptPidDict := {}
 scriptDisplayNames := []  ; Parallel to `scripts`
 scripts := [ "WindowResize.ahk", "WinMove.ahk", "create_text_file.ahk", "shortcut_parent.ahk", "essential.ahk", "text_replacement.ahk", "ExcelScript.ahk", "symbol_type.ahk", "CapsLockKeyNav.ahk" ]
 ; scripts := []
-pids := {}  ; To store script name -> PID
+scriptPidDict := {}  ; To store script name -> PID
 
 ; Create the submenu first
 Menu, LaunchMenu, Add  ; Creates the empty submenu
@@ -43,31 +43,44 @@ ShowScriptMenu:
     Menu, LaunchMenu, DeleteAll
     for index, script in scripts
     {
-        Menu, LaunchMenu, Add, %script%, LaunchScript
+        Menu, LaunchMenu, Add, %script%, LaunchScriptFromMenu
     }
     Menu, LaunchMenu, Show
 return
 
 LaunchScripts:
     for index, script in scripts
-        LaunchScriptF(script)
+        LaunchScript(script)
 Return
 
-LaunchScript:
+LaunchScriptFromMenu:
     script := A_ThisMenuItem
-    LaunchScriptF(script)
+    LaunchScript(script)
 return
 
-LaunchScriptF(script) {
-    global pids
-    if (pids.HasKey(script))
+LaunchScript(script) {
+    global scriptPidDict, scriptDisplayNames, scripts
+    if (scriptPidDict.HasKey(script))
     {
         MsgBox, 48, Already Running, "%script%" is already running.
         return
     }
-    SplitPath, script, , , ext
+    ; Find the script path that matches the display name
+    scriptpath := script
+    for i, displayName in scriptDisplayNames
+    {
+        if (displayName = script)
+        {
+            scriptpath := scripts[i]
+            break
+        }
+    }
+    if (scriptpath = "")
+        scriptpath := script  ; fallback if not found (maybe called directly with path)
+
+    SplitPath, scriptpath, , , ext
     if (ext = "ahk")
-        Run, %A_AhkPath% "%script%", , Hide, newPID
+        Run, %A_AhkPath% "%scriptpath%", , Hide, newPID
     else
         Run, %script%, , Hide, newPID
 
@@ -76,22 +89,23 @@ LaunchScriptF(script) {
         MsgBox, 16, Error, Failed to run "%script%"
         return
     }
-    pids[script] := newPID
+    scriptPidDict[script] := newPID
 }
 
 ShowRunningMenu:
     Gui, RunningScripts:New, , Running Scripts
     Gui, RunningScripts:Font, s10
     row := 0
-    for script, pid in pids
+    for script, pid in scriptPidDict
     {
         if ProcessExist(pid) {
             row++
             yPos := row * 30
             yBtn := yPos - 2
             Gui, RunningScripts:Add, Text, x10 y%yPos% w300 vScriptText%row%, %script% (PID: %pid%)
-            Gui, RunningScripts:Add, Button, x320 y%yBtn% w60 gStopScript vStopBtn%row%, Stop
-            GuiControl,, StopBtn%row%, %script%  ; Store script name in button's text
+            Gui, RunningScripts:Add, Button, x320 y%yBtn% w60 gStopScriptRM vStopBtn%row%, Stop
+            ; GuiControl,, StopBtn%row%, %script%  ; Store script name in button's text
+            GuiControl,, StopBtn%row%, Stop  ; Store script name in button's text
         }
     }
     if (row = 0)
@@ -99,24 +113,31 @@ ShowRunningMenu:
     Gui, RunningScripts:Show, AutoSize Center
 return
 
-StopScript:
+StopScriptRM:
     GuiControlGet, btn, RunningScripts:, %A_GuiControl%
     script := btn
-    if (pids.HasKey(script) && ProcessExist(pids[script])) {
-        Process, Close, % pids[script]
-        pids.Delete(script)
+    if (scriptPidDict.HasKey(script) && ProcessExist(scriptPidDict[script])) {
+        StopScript(script)
         Gui, RunningScripts:Destroy
         Gosub, ShowRunningMenu
     }
 return
 
+StopScript(script) {
+    global scriptPidDict
+    if (scriptPidDict.HasKey(script)) {
+        Process, Close, % scriptPidDict[script]
+        scriptPidDict.Delete(script)
+    }
+}
+
 CloseAllScripts:
-    for script, pid in pids
+    for script, pid in scriptPidDict
     {
         if ProcessExist(pid)
             Process, Close, %pid%
     }
-    pids := {}  ; Clear dictionary
+    scriptPidDict := {}  ; Clear dictionary
     MsgBox, 64, Closed, All running scripts have been closed.
 return
 
@@ -168,17 +189,35 @@ return
 ShowScriptManager:
     Gui, ScriptManager:New, , Script List Manager
     Gui, ScriptManager:Add, ListBox, vScriptList w400 h200
-    for i, s in scripts
-    {
-        GuiControl,, ScriptList, %s%
-    }
+
+    ReloadScriptList()
 
     Gui, ScriptManager:Add, Button, gAddScript, Add
     Gui, ScriptManager:Add, Button, gRemoveScript x+10, Remove
+    Gui, ScriptManager:Add, Button, gRunScript x+10, Run
+    Gui, ScriptManager:Add, Button, gStopScript x+10, Stop
     Gui, ScriptManager:Add, Button, gSaveScriptList x+10, Save
     Gui, ScriptManager:Add, Button, gCancelScriptManager x+10, Cancel
+    Gui, ScriptManager:Add, Button, gDebugLabel x+10, Debug
     Gui, ScriptManager:Show
 return
+
+DebugLabel:
+    Loop % scriptDisplayNames.Length(){
+        ToolTip,  % scriptDisplayNames[A_Index]
+        Sleep, 1000
+        ToolTip
+    }
+Return
+
+GetSelectedScript:
+    GuiControlGet, selected, , ScriptList
+    if (selected = "")
+        return
+    if(InStr(selected, "[ ]") > 0 || InStr(selected, "[x]") > 0) {
+        StringTrimLeft, selected, selected, 4
+    }
+Return
 
 AddScript:
     FileSelectFile, filePath, 3,, Select script to add, AHK Scripts (*.ahk; *.exe)
@@ -191,12 +230,12 @@ AddScript:
 return
 
 RemoveScript:
-    GuiControlGet, selected, , ScriptList
-    if (selected = "")
-        return
+    Gosub, GetSelectedScript
     Loop % scriptDisplayNames.Length()
     {
         if (scriptDisplayNames[A_Index] = selected) {
+            StopScript(selected)
+
             scripts.RemoveAt(A_Index)
             scriptDisplayNames.RemoveAt(A_Index)
             break
@@ -205,6 +244,36 @@ RemoveScript:
     ReloadScriptList()
 return
 
+RunScript:
+    Gosub, GetSelectedScript
+
+    LaunchScript(selected)
+    ReloadScriptList()
+
+Return
+
+StopScript:
+    Gosub, GetSelectedScript
+    StopScript(selected)
+    ReloadScriptList()
+Return
+
+ReloadScriptList() {
+    global scripts, scriptDisplayNames, scriptPidDict
+    GuiControl,, ScriptList, |
+    Loop % scriptDisplayNames.Length(){
+        isrunningstring := "[ ] "
+        if (scriptPidDict.HasKey(scriptDisplayNames[A_Index])) {
+            isrunningstring := "[x] "
+        }
+        displaystring := % scriptDisplayNames[A_Index]
+        displaystring = %isrunningstring%%displaystring%
+        GuiControl,, ScriptList, %displaystring%
+        ; GuiControl,, ScriptList, % scriptDisplayNames[A_Index]
+    }
+
+}
+
 SaveScriptList:
     SaveScripts()
     Gui, ScriptManager:Destroy
@@ -212,6 +281,8 @@ return
 
 CancelScriptManager:
     Gui, ScriptManager:Destroy
+    LoadScripts()
+
 return
 
 ProcessExist(PID)
@@ -222,19 +293,23 @@ ProcessExist(PID)
 
 LoadScripts() {
     global scripts, scriptDisplayNames, iniFile
-    scripts := []
     scriptDisplayNames := []
 
     if !FileExist(iniFile)
     {
         FileAppend,, %iniFile%
+        ; SaveScripts()
         return
     }
+    scripts := []
+
 
     index := 1
     Loop {
         IniRead, scriptPath, %iniFile%, Scripts, Script%index%,
-        if (scriptPath = "")
+        if (scriptPath = "" || scriptPath = "ERROR")
+            break
+        if (ErrorLevel)
             break
         if FileExist(scriptPath) {
             scripts.Push(scriptPath)
@@ -254,12 +329,5 @@ SaveScripts() {
     ; Write each script path
     Loop % scripts.Length()
         IniWrite, % scripts[A_Index], %iniFile%, Scripts, Script%A_Index%
-}
-
-ReloadScriptList() {
-    global scripts, scriptDisplayNames
-    GuiControl,, ScriptList, |
-    Loop % scriptDisplayNames.Length()
-        GuiControl,, ScriptList, % scriptDisplayNames[A_Index]
 }
 
