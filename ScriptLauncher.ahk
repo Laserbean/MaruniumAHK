@@ -198,22 +198,24 @@ ShowScriptManager:
     Gui, ScriptManager:Add, Button, gStopScript x+10, Stop
     Gui, ScriptManager:Add, Button, gSaveScriptList x+10, Save
     Gui, ScriptManager:Add, Button, gCancelScriptManager x+10, Cancel
-    Gui, ScriptManager:Add, Button, gDebugLabel x+10, Debug
+    ; Gui, ScriptManager:Add, Button, gDebugLabel x+10, Debug
     Gui, ScriptManager:Show
 return
 
-DebugLabel:
-    Loop % scriptDisplayNames.Length(){
-        ToolTip,  % scriptDisplayNames[A_Index]
-        Sleep, 1000
-        ToolTip
-    }
-Return
+; DebugLabel:
+;     Loop % scriptDisplayNames.Length(){
+;         ToolTip,  % scriptDisplayNames[A_Index]
+;         Sleep, 1000
+;         ToolTip
+;     }
+; Return
 
 GetSelectedScript:
     GuiControlGet, selected, , ScriptList
     if (selected = "")
         return
+
+    selectedIsRunning := InStr(selected, "[x]") > 0
     if(InStr(selected, "[ ]") > 0 || InStr(selected, "[x]") > 0) {
         StringTrimLeft, selected, selected, 4
     }
@@ -231,6 +233,10 @@ return
 
 RemoveScript:
     Gosub, GetSelectedScript
+    if (selectedIsRunning) {
+        MsgBox, , Error, Stop Script before removing, 5
+        Return
+    }
     Loop % scriptDisplayNames.Length()
     {
         if (scriptDisplayNames[A_Index] = selected) {
