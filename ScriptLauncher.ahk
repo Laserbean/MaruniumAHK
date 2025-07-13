@@ -11,6 +11,9 @@ scripts := [ "WindowResize.ahk", "WinMove.ahk", "create_text_file.ahk", "shortcu
 ; scripts := []
 scriptPidDict := {}  ; To store script name -> PID
 
+I_Icon = icon.ico
+Menu, Tray, Icon, %I_Icon%   ;Changes menu tray icon
+
 ; Create the submenu first
 Menu, LaunchMenu, Add  ; Creates the empty submenu
 
@@ -23,7 +26,9 @@ Menu, Tray, Add, Edit Script List..., EditScriptList
 Menu, Tray, Add, Manage Scripts..., ShowScriptManager
 
 Menu, Tray, Add, Close All, CloseAllScripts
+Menu, Tray, Add, Reload, ReloadLabel
 Menu, Tray, Add, Exit Launcher, ExitAppLabel
+
 Menu, Tray, Default, Launch Script...
 Menu, Tray, Click, 1
 Menu, Tray, Tip, Script Launcher
@@ -31,8 +36,13 @@ Menu, Tray, Tip, Script Launcher
 ; OnExit, CloseAllScripts
 
 LoadScripts()
-
+; Gosub, LaunchScripts
 return
+
+ReloadLabel:
+    Gosub, CloseAllScripts
+    Reload
+Return
 
 ExitAppLabel:
     Gosub, CloseAllScripts
@@ -80,7 +90,7 @@ LaunchScript(script) {
 
     SplitPath, scriptpath, , , ext
     if (ext = "ahk")
-        Run, %A_AhkPath% "%scriptpath%", , Hide, newPID
+        Run, %A_AhkPath% "%scriptpath%" noIcon, , Hide, newPID
     else
         Run, %script%, , Hide, newPID
 
@@ -138,7 +148,10 @@ CloseAllScripts:
             Process, Close, %pid%
     }
     scriptPidDict := {}  ; Clear dictionary
-    MsgBox, 64, Closed, All running scripts have been closed.
+    Tooltip, Closed all scripts
+    Sleep, 300
+    Tooltip
+    ; MsgBox, 64, Closed, All running scripts have been closed.
 return
 
 EditScriptList:
@@ -308,7 +321,6 @@ LoadScripts() {
         return
     }
     scripts := []
-
 
     index := 1
     Loop {

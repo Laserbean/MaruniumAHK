@@ -2,6 +2,9 @@
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
+#Include, HideIcon.ahk
+
+
 ;#region============================EXTRA STUFF===================================
 
 ; XButton1::

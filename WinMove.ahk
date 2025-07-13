@@ -4,6 +4,8 @@ SendMode, Input
 SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 
+#Include, HideIcon.ahk
+
 !+Left::
 !+Right::
 !+WheelDown::

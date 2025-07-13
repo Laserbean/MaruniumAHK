@@ -4,6 +4,7 @@ SendMode, Input
 SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 
+#Include HideIcon.ahk
 
 timer := 0
 CapslockVirtualState := 0

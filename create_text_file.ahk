@@ -19,6 +19,9 @@
 ; Ctrl+Alt+N
 #SingleInstance, Force
 
+#Include, HideIcon.ahk
+
+
 
 #IfWinActive ahk_class CabinetWClass
     ^!n::

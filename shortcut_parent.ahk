@@ -4,6 +4,9 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 
+#Include, HideIcon.ahk
+
+
 #IfWinActive ahk_class CabinetWClass
 ^!s:: ; Hotkey: Ctrl + Alt + S
 {

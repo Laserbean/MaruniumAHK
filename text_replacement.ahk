@@ -2,6 +2,8 @@
 SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
+#Include, HideIcon.ahk
+
 
 WaitForKeyRelease(keyToWaitFor) { ;from laserbeanAHK. But it's annoying to have submodules. 
     Loop {

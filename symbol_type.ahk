@@ -4,6 +4,9 @@ SendMode Input ; Recommended for new scripts due to its superior speed and relia
 SetWorkingDir %A_ScriptDir% ; Ensures a consistent starting directory.
 #SingleInstance force
 
+#Include, HideIcon.ahk
+
+
 ;;;;;;;;Zooming in eclispe start
 ; Ctrl + MouseWheel zooming in Eclipse Editor.
 ; Requires Tarlog plugins (https://code.google.com/p/tarlog-plugins/).

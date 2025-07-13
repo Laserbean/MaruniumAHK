@@ -4,16 +4,18 @@ SendMode, Input
 SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 
-; Modified by Laserbean
+#Include, HideIcon.ahk
 
+
+; Modified by Laserbean
 ; Easy Window Dragging -- KDE style (requires XP/2k/NT) -- by Jonny
 ; https://www.autohotkey.com
-; This script makes it much easier to move or resize a window: 1) Hold down
-; the ALT key and LEFT-click anywhere inside a window to drag it to a new
-; location; 2) Hold down ALT and RIGHT-click-drag anywhere inside a window
-; to easily resize it; 3) Press ALT twice, but before releasing it the second
-; time, left-click to minimize the window under the mouse cursor, right-click
-; to maximize it, or middle-click to close it.
+
+; This script makes it much easier to move or resize a window:
+; 1) Hold down the Win key and LEFT-click anywhere inside a window to drag it to a new location; 
+; 2) Hold down Win and RIGHT-click-drag anywhere inside a window to easily resize it; Shift Win and RIGHT-click-drag to lock either the width or height
+; 3) Win Double-LEFT-click to restore or maximize a window
+; 4) Shift Win middle-click to close it.
 
 ; This script was inspired by and built on many like it
 ; in the forum. Thanks go out to ck, thinkstorm, Chris,
@@ -22,20 +24,14 @@ SetWorkingDir, %A_ScriptDir%
 ; Change history:
 ; November 07, 2006: Optimized resizing code in !RButton, courtesy of bluedawn.
 ; February 05, 2006: Fixed double-alt (the ~Alt hotkey) to work with latest versions of AHK.
-
-; The Double-Alt modifier is activated by pressing
-; Alt twice, much like a double-click. Hold the second
-; press down until you click.
+; Laserbean changes: Completely removed double alt cause i don't like it. 
 ;
 ; The shortcuts:
-;  Alt + Left Button  : Drag to move a window.
-;  Alt + Right Button : Drag to resize a window.
-;  Double-Alt + Left Button   : Minimize a window.
-;  Double-Alt + Right Button  : Maximize/Restore a window.
-;  Double-Alt + Middle Button : Close a window.
+;  Win + Left Button  : Drag to move a window.
+;  (Shift) + Win + Right Button : Drag to resize a window.
+;  Win + Double Left Button   : Maximize/Restore a window.
+;  Shift + Win + Middle Button : Close a window.
 ;
-; You can optionally release Alt after the first
-; click rather than holding it down the whole time.
 
 If (A_AhkVersion < "1.0.39.00")
 {
@@ -113,48 +109,7 @@ return
         KDE_WinY2 := (KDE_WinY1 + KDE_Y2)
 
         WinMove,ahk_id %KDE_id%,,%KDE_WinX2%,%KDE_WinY2% ; Move the window to the new position.
-
-        ; sposX := xpos + _x0
-        ; sposY := ypos + _y0
-
-        ; sposx2 := xpos + _x1
-        ; sposy2 := ypos + _y1
-
-        ; ; ; ; lineColour := "0xFF0000" ; Red color
-        ; ; ; ToolTip, % KDE_WinX2 " " KDE_WinY2 " "  win_width " "  win_height
-        ; ; ; if
-        ; ; xval := 5 + KDE_WinX2
-        ; ; yval := 5 + KDE_WinY2
-
-        ; ; ; if (xval >= 0) {
-        ; ; ;     if (yval >= o) {
-        ; ; ;         ToolTip, % " a " xval " " yval, xval, yval, 1
-        ; ; ;     }
-        ; ; ;     if (yval + win_height <= Height) {
-        ; ; ;         ToolTip, % " c ", xval, yval + win_height, 3
-        ; ; ;     }
-        ; ; ; }
-        ; ; ; if (xval + win_width <= Width) {
-        ; ; ;     if (yval >= o) {
-        ; ; ;         ToolTip, % " b ", xval + win_width, yval, 2
-        ; ; ;     }
-        ; ; ;     if (yval + win_height <= Height) {
-        ; ; ;         ToolTip, % " d ", xval + win_width, yval + win_height, 4
-        ; ; ;     }
-        ; ; ; }
-        ; ; ToolTip, % " ", xval, yval, 1
-        ; ; ToolTip, % " ", xval, yval + win_height, 3
-        ; ; ToolTip, % " ", xval + win_width, yval, 2
-        ; ; ToolTip, % " ", xval + win_width, yval + win_height, 4
-
-        ; DrawRectangle2(lineColour, KDE_WinX2, KDE_WinY2, win_width, win_height, 100)
     }
-    ToolTip, , , , 1
-    ToolTip, , , , 2
-    ToolTip, , , , 3
-    ToolTip, , , , 4
-    ; Gui, Destroy
-
     WinMove,ahk_id %KDE_id%,,%KDE_WinX2%,%KDE_WinY2% ; Move the window to the new position.
 
 return
@@ -182,6 +137,13 @@ return
     ; }
     ; Get the initial mouse position and window id, and
     ; abort if the window is maximized.
+    WinGet, state, MinMax, ahk_id %KDE_id%
+
+    ; if (state = 1) {
+    ;     ; Already maximized → restore to normal
+    ;     WinRestore, ahk_id %KDE_id%
+    ; } 
+
     MouseGetPos,KDE_X1,KDE_Y1,KDE_id
 
     init_x := KDE_X1
@@ -219,7 +181,7 @@ return
                 KDE_Y2 := init_y
             }
         }
-        
+
         ; Get the current window position and size.
         WinGetPos,KDE_WinX1,KDE_WinY1,KDE_WinW,KDE_WinH,ahk_id %KDE_id%
         KDE_X2 -= KDE_X1 ; Obtain an offset from the initial mouse position.
@@ -239,14 +201,9 @@ return
 ; an operation like this.
 
 ; ~!MButton::
-^#!MButton::
-    ; If DoubleAlt
-    ; {
++#MButton::
     MouseGetPos,,,KDE_id
     WinClose,ahk_id %KDE_id%
-; DoubleAlt := false
-; return
-; }
 return
 
 ; ; This detects "double-clicks" of the alt key.
