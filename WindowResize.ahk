@@ -63,21 +63,12 @@ return
     CoordMode, ToolTip, Screen
 
     MouseGetPos, KDE_X1, KDE_Y1, KDE_id
-    WinGet, state, MinMax, ahk_id %KDE_id%
-
-    if (state = 1) {
-        Gosub, UnMaximise
-    }
-
     WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
 
-    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 ) and GetKeyState("LShift", "T") {
-        ; ; WinGetTitle, WinTitle, ahk_id %KDE_id%
-        ; WinMaximize,  ahk_id %KDE_id%
-        ; ; ControlSend, Control, #{up} , WinTitle
-        WinGet, state, MinMax, ahk_id %KDE_id%
-
-        if (state = 1) {
+    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 ) {
+       
+        ; WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
+        if (KDE_Win = 1) {
             ; Already maximized → restore to normal
             WinRestore, ahk_id %KDE_id%
         } else {
@@ -86,6 +77,8 @@ return
         }
         Return
     }
+
+
 
     If KDE_Win
         return
