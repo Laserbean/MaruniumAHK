@@ -19,24 +19,25 @@ Menu, LaunchMenu, Add  ; Creates the empty submenu
 
 ; Set up tray menu
 Menu, Tray, NoStandard
+Menu, Tray, Add, Manage Scripts..., ShowScriptManager
 Menu, Tray, Add, Launch Script..., ShowScriptMenu
 Menu, Tray, Add, Launch All Scripts..., LaunchScripts
-Menu, Tray, Add, Running Scripts, ShowRunningMenu
-Menu, Tray, Add, Edit Script List..., EditScriptList
-Menu, Tray, Add, Manage Scripts..., ShowScriptManager
+
+; Menu, Tray, Add, Running Scripts, ShowRunningMenu
+; Menu, Tray, Add, Edit Script List..., EditScriptList
 
 Menu, Tray, Add, Close All, CloseAllScripts
 Menu, Tray, Add, Reload, ReloadLabel
 Menu, Tray, Add, Exit Launcher, ExitAppLabel
 
-Menu, Tray, Default, Launch Script...
+Menu, Tray, Default, Manage Scripts...
 Menu, Tray, Click, 1
 Menu, Tray, Tip, Script Launcher
 
 ; OnExit, CloseAllScripts
 
 LoadScripts()
-; Gosub, LaunchScripts
+Gosub, LaunchScripts
 return
 
 ReloadLabel:
@@ -151,7 +152,7 @@ CloseAllScripts:
     Tooltip, Closed all scripts
     Sleep, 300
     Tooltip
-    ; MsgBox, 64, Closed, All running scripts have been closed.
+; MsgBox, 64, Closed, All running scripts have been closed.
 return
 
 EditScriptList:
@@ -206,11 +207,15 @@ ShowScriptManager:
     ReloadScriptList()
 
     Gui, ScriptManager:Add, Button, gAddScript, Add
-    Gui, ScriptManager:Add, Button, gRemoveScript x+10, Remove
-    Gui, ScriptManager:Add, Button, gRunScript x+10, Run
-    Gui, ScriptManager:Add, Button, gStopScript x+10, Stop
-    Gui, ScriptManager:Add, Button, gSaveScriptList x+10, Save
-    Gui, ScriptManager:Add, Button, gCancelScriptManager x+10, Cancel
+    Gui, ScriptManager:Add, Button, gRemoveScript x+5, Remove
+    Gui, ScriptManager:Add, Button, gRunScript x+5, Run
+    Gui, ScriptManager:Add, Button, gStopScript x+5, Stop
+
+    Gui, ScriptManager:Add, Button, gRunAllScriptManager x+5, Run All
+    Gui, ScriptManager:Add, Button, gCloseAllScriptManager x+5, Stop All
+
+    Gui, ScriptManager:Add, Button, gSaveScriptList x+20, Save
+    Gui, ScriptManager:Add, Button, gCancelScriptManager x+5, Cancel
     ; Gui, ScriptManager:Add, Button, gDebugLabel x+10, Debug
     Gui, ScriptManager:Show
 return
@@ -302,6 +307,16 @@ CancelScriptManager:
     Gui, ScriptManager:Destroy
     LoadScripts()
 
+return
+
+RunAllScriptManager:
+    Gosub, LaunchScripts
+    ReloadScriptList()
+Return
+
+CloseAllScriptManager:
+    Gosub, CloseAllScripts
+    ReloadScriptList()
 return
 
 ProcessExist(PID)
