@@ -66,7 +66,7 @@ return
     WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
 
     If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 ) {
-       
+
         ; WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
         if (KDE_Win = 1) {
             ; Already maximized → restore to normal
@@ -77,8 +77,6 @@ return
         }
         Return
     }
-
-
 
     If KDE_Win
         return
@@ -211,6 +209,87 @@ return
 +#MButton::
     MouseGetPos,,,KDE_id
     WinClose,ahk_id %KDE_id%
+return
+
+#MButton::
+
+    ; If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1) {
+    ;     ; MouseGetPos,,,KDE_id
+    ;     ; ; This message is mostly equivalent to WinMinimize,
+    ;     ; ; but it avoids a bug with PSPad.
+    ;     ; PostMessage,0x112,0xf020,,,ahk_id %KDE_id%
+    ;     ; return
+    ; }
+
+    ; Get the initial mouse position and window id
+
+    ; WinGet, state, MinMax, ahk_id %KDE_id%
+
+    ; if (state = 1) {
+    ;     Gosub, UnMaximise
+    ; }
+
+    MouseGetPos, KDE_X1, KDE_Y1, KDE_id
+
+    init_x := KDE_X1
+    init_y := KDE_Y1
+
+    WinGet,KDE_Win, MinMax, ahk_id %KDE_id%
+    
+    ; If KDE_Win
+    ;     return
+    ; Get the initial window position and size.
+    WinGetPos,KDE_WinX1, KDE_WinY1, KDE_WinW, KDE_WinH, ahk_id %KDE_id%
+
+    TRANS_MIN := 5
+
+    WinGet, CUR_TRANSPARENT, Transparent, ahk_id %KDE_id%
+
+    if (CUR_TRANSPARENT = "") {
+        CUR_TRANSPARENT := 255
+    }
+
+    KDE_X1 -= CUR_TRANSPARENT
+
+    Loop
+    {
+        GetKeyState,KDE_Button, MButton, P ; Break if button has been released.
+        If KDE_Button = U
+            break
+
+        MouseGetPos,KDE_X2,KDE_Y2 ; Get the current mouse position.
+        KDE_X2 -= KDE_X1 ; Obtain an offset from the initial mouse position.
+        KDE_Y2 -= KDE_Y1
+
+        ; if (GetKeyState("LShift", "P") ){
+        ;     ; ToolTip, TEST %KDE_X2% %KDE_Y2% %init_x% %init_y%
+        ;     if (Abs(KDE_X2) < Abs(KDE_Y2)) {
+        ;         KDE_X2 := 0
+        ;     }
+        ;     else {
+        ;         KDE_Y2 := 0
+        ;     }
+        ; }
+
+        ; KDE_X2 *= 0.005
+        ; KDE_X2 += CUR_TRANSPARENT
+
+        ; ToolTip, %CUR_TRANSPARENT% - %KDE_X2%
+
+        if (KDE_X2 < TRANS_MIN) {
+            KDE_X2 := TRANS_MIN
+        }
+
+        if (KDE_X2 > 255) {
+            KDE_X2 := 255
+        }
+
+        WinSet, Transparent, %KDE_X2%, ahk_id %KDE_id%
+
+    }
+
+    ; ToolTip
+
 return
 
 ; ; This detects "double-clicks" of the alt key.
