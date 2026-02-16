@@ -54,20 +54,67 @@ return
     Clipboard := SavedClipboard
 Return
 
+; +F3::
+;     WaitForKeyRelease("Shift")
+
+;     OriginalClipboard := ClipboardAll
+
+;     Clipboard := "" ; Clear clipboard
+;     Send, ^{c} ; Copy selected text
+;     ClipWait, 1 ; Wait for clipboard to contain data
+;     if ErrorLevel ; If no text is selected, exit
+;     {
+;         Clipboard := OriginalClipboard ; Restore the clipboard contents
+;         return
+;     }
+;     ; Sleep, 300
+
+;     ToolTip, %Clipboard%
+
+;     StringLower, LowerText, Clipboard
+;     StringUpper, UpperText, Clipboard
+;     StringUpper, FirstUpperText, Clipboard, T
+
+;     ; Cycle between lowercase, uppercase, and first letter uppercase
+;     if (Clipboard == LowerText) {
+;         Clipboard := UpperText
+;     } else if (Clipboard == UpperText) {
+;         Clipboard := FirstUpperText
+;     } else {
+;         Clipboard := LowerText
+;     }
+
+;     ToolTip, %Clipboard%
+
+;     ; Sleep, 300
+;     ; Paste the modified text
+;     Send, ^{v}
+;     ToolTip
+
+;     ; Sleep, 300
+
+;     LenAfter := StrLen(Clipboard)
+    
+;     Send, {Shift down}{Left %LenAfter%}{Shift up}
+
+;     Clipboard := OriginalClipboard
+; return
+
+
 +F3::
     WaitForKeyRelease("Shift")
 
     OriginalClipboard := ClipboardAll
 
-    Clipboard := "" ; Clear clipboard
-    SendInput, ^c ; Copy selected text
+    Send, ^{c} ; Copy selected text
     ClipWait, 1 ; Wait for clipboard to contain data
     if ErrorLevel ; If no text is selected, exit
     {
         Clipboard := OriginalClipboard ; Restore the clipboard contents
         return
     }
-    Sleep, 300
+
+    ; Sleep, 300
 
     ToolTip, %Clipboard%
 
@@ -77,25 +124,32 @@ Return
 
     ; Cycle between lowercase, uppercase, and first letter uppercase
     if (Clipboard == LowerText) {
-        Clipboard := UpperText
-    } else if (Clipboard == UpperText) {
+        ; Clipboard := UpperText
         Clipboard := FirstUpperText
-    } else {
+    } else if (Clipboard == UpperText) {
+        ; Clipboard := FirstUpperText
         Clipboard := LowerText
+    } else {
+        ; Clipboard := LowerText
+        Clipboard := UpperText
     }
 
     ToolTip, %Clipboard%
 
-    Sleep, 300
+    ; Sleep, 300
     ; Paste the modified text
-    SendInput, ^v
+    Send, ^{v}
     ToolTip
 
-    Sleep, 300
+    ; Sleep, 300
 
-    ; LenAfter := StrLen(Clipboard)
+    LenAfter := StrLen(Clipboard)
 
-    ; Send,{Shift down}{Left %LenAfter%}{Shift up}
+    ; SpaceCount := StrLen(Clipboard) - StrLen(StrReplace(Clipboard, " ", "")) + 1
+    ; Send, ^+{Left %SpaceCount%}
+    
+    Send, {Shift down}{Left %LenAfter%}{Shift up}
+
     Clipboard := OriginalClipboard
 return
 
