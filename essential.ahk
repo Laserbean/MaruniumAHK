@@ -90,16 +90,16 @@ Return
     ; Sleep 1000 ; Let it display for 3 seconds.
 Return
 
-;Shift + Windows + Up (maximize a window across all displays) https://stackoverflow.com/a/9830200/470749
-+#Up::
-    WinGetActiveTitle, Title
-    WinRestore, %Title%
-    SysGet, X1, 76
-    SysGet, Y1, 77
-    SysGet, Width, 78
-    SysGet, Height, 79
-    WinMove, %Title%,, X1-5, Y1-3, Width +20, Height 
-return
+; ;Shift + Windows + Up (maximize a window across all displays) https://stackoverflow.com/a/9830200/470749
+; +#Up::
+;     WinGetActiveTitle, Title
+;     WinRestore, %Title%
+;     SysGet, X1, 76
+;     SysGet, Y1, 77
+;     SysGet, Width, 78
+;     SysGet, Height, 79
+;     WinMove, %Title%,, X1-5, Y1-3, Width +20, Height 
+; return
 
 #^WheelDown::
     ;activate taskbar before

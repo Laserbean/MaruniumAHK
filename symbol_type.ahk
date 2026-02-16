@@ -256,4 +256,7 @@ Return
 :*:lennyface::( ͡° ͜ʖ ͡°) 
 Return
 
+:*:.zws.::​
+Return
+
 ;#endregion Symbols end

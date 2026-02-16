@@ -3,10 +3,11 @@ SendMode Input
 SetWorkingDir, %A_ScriptDir%
 
 #Include, HideIcon.ahk
-
-#IfWinActive Excel
+#IfWinActive ahk_exe EXCEL.EXE
 
     ^BackSpace::
+        ; MsgBox, , Test, Text
+        ; MsgBox, , Title, Text, Timeout]
         Send, ^+{Left}
         Send, {BackSpace}
     Return
@@ -41,7 +42,7 @@ SetWorkingDir, %A_ScriptDir%
 
     Return
 
-    +^s::
+    ^+s::
         Send {F12}
 
     Return
@@ -62,7 +63,7 @@ SetWorkingDir, %A_ScriptDir%
 #IfWinActive
 
 Clipboardbackup := ""
-^+v::
+^!v::
     Clipboardbackup := ClipboardAll
     Clipboard := Clipboard
     Send ^v
@@ -71,8 +72,8 @@ Clipboardbackup := ""
 Return
 
 #IfWinActive ahk_exe WINWORD.EXE
-+^s::
-    Send {F12}
+    +^s::
+        Send {F12}
 
-Return
+    Return
 #IfWinActive
