@@ -14,7 +14,7 @@ WaitForKeyRelease(keyToWaitFor) { ;from laserbeanAHK. But it's annoying to have 
     }
 }
 
-^+r::
+^+!r::
     WaitForKeyRelease("Ctrl")
     SavedClipboard := ClipboardAll
     Clipboard := "" ; Clear clipboard
@@ -97,4 +97,27 @@ Return
 
     ; Send,{Shift down}{Left %LenAfter%}{Shift up}
     Clipboard := OriginalClipboard
+return
+
+
+^+!\::
+    WaitForKeyRelease("Ctrl")
+    SavedClipboard := ClipboardAll
+    Clipboard := "" ; Clear clipboard
+    SendInput, ^c ; Copy selected text to clipboard
+    ClipWait, 1 ; Wait for clipboard to contain data
+    if ErrorLevel ; If no text is selected, exit
+    {
+        Clipboard := SavedClipboard ; Restore the clipboard contents
+        return
+    }
+    StringGetPos, UnderscorePos, Clipboard, \ ; Check if underscore is present
+    if (UnderscorePos > 0) ; If underscore is present, replace underscores with spaces
+        StringReplace, Clipboard, Clipboard, \, /, All
+    else ; If no underscore is present, replace spaces with underscores
+        StringReplace, Clipboard, Clipboard, /, \, All
+    SendInput, ^{v} ; Paste modified text
+
+    Sleep, 300
+    Clipboard := SavedClipboard
 return
