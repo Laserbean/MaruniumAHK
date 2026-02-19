@@ -21,10 +21,11 @@ Loop {
 
     for curid, winData in pinned {
         ; Check if window still exists
-        if (!WinExist("ahk_id " curid)) {
-            pinned.Delete(curid)
-            continue
-        }
+
+        ; if (!WinExist("ahk_id " curid)) {
+        ;     pinned.Delete(curid)
+        ;     continue
+        ; }
 
         ; WinGetTitle, title, ahk_id %activeId%
 
@@ -87,6 +88,27 @@ Loop {
 
         WinMove, ahk_id %id%, , origX, origY, 20, 20
         WinSet, Transparent, %TRANS_MIN%, ahk_id %id%
+    }
+
+Return
+
+^#!u::
+    for curid, winData in pinned {
+        ; Check if window still exists
+
+        ; WinGetTitle, title, ahk_id %activeId%
+
+        ; Mouse is over this window, expand it
+
+        if (WinExist("ahk_id " curid)) {
+
+            WinMove, ahk_id %curid%, , winData.origX, winData.origY, winData.origW, winData.origH
+            winData.isHidden := False
+            WinSet, Transparent, %TRANS_MAX%, ahk_id %curid%
+            pinned.Delete(curid)
+            continue
+        }
+
     }
 
 Return
