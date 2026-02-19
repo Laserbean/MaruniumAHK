@@ -65,7 +65,7 @@ return
     MouseGetPos, KDE_X1, KDE_Y1, KDE_id
     WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
 
-    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 ) {
+    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 )and (A_PriorHotkey = "#LButton" or A_PriorHotkey = "+#LButton") {
 
         ; WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
         if (KDE_Win = 1) {
@@ -133,7 +133,7 @@ Return
 +#RButton::
 #RButton::
 
-    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1) {
+    If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1) and (A_PriorHotkey = "#RButton" or A_PriorHotkey = "+#RButton"){
         MouseGetPos,,,KDE_id
         ; This message is mostly equivalent to WinMinimize,
         ; but it avoids a bug with PSPad.
@@ -235,7 +235,7 @@ return
     init_y := KDE_Y1
 
     WinGet,KDE_Win, MinMax, ahk_id %KDE_id%
-    
+
     ; If KDE_Win
     ;     return
     ; Get the initial window position and size.
@@ -288,7 +288,7 @@ return
 
     }
 
-    ; ToolTip
+; ToolTip
 
 return
 
