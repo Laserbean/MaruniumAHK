@@ -16,46 +16,46 @@ TRANS_MIN := 50
 TRANS_MAX := 255
 CoordMode, ToolTip, Screen
 CoordMode, Mouse, Screen
+
+resizetimer := 0
+
 Loop {
     MouseGetPos, curx, cury , activeId, control
 
     for curid, winData in pinned {
-        ; Check if window still exists
-
-        ; if (!WinExist("ahk_id " curid)) {
-        ;     pinned.Delete(curid)
-        ;     continue
-        ; }
-
-        ; WinGetTitle, title, ahk_id %activeId%
-
-        if (activeId = curid) {
-            ; Mouse is over this window, expand it
-            if (winData.isHidden) {
+        if (winData.isHidden) {
+            if (activeId = curid) {
                 WinMove, ahk_id %curid%, , winData.origX, winData.origY, winData.origW, winData.origH
                 winData.isHidden := False
                 WinSet, Transparent, %TRANS_MAX%, ahk_id %curid%
-            } else {
-                WinGetPos, x, y, w, h, ahk_id %curid%
+            }
+
+        } else {
+            ; ToolTip, origin , winData.origX, winData.origY, 1
+            ; ToolTip, origin2 , winData.origX + winData.origW, winData.origY + winData.origH, 2
+            threshold := 50
+
+            WinGetPos, x, y, w, h, ahk_id %curid%
+            if (winData.origX != x || winData.origY != y || winData.origW != w || winData.origH != h ) {
                 winData.origX := x
                 winData.origY := y
                 winData.origW := w
                 winData.origH := h
+                resizetimer := 30
             }
-        } else {
-            ; Mouse is not over this window, minimize it
-            if (!winData.isHidden) {
-                ; ToolTip, origin , winData.origX, winData.origY, 1
-                ; ToolTip, origin2 , winData.origX + winData.origW, winData.origY + winData.origH, 2
-                if (curx < winData.origX || curx > winData.origX + winData.origW || cury < winData.origY || cury > winData.origY + winData.origH) {
+
+            if (resizetimer <= 0) {
+                if (curx < winData.origX - threshold || curx > winData.origX + winData.origW + threshold || cury < winData.origY - threshold || cury > winData.origY + winData.origH + threshold) {
                     WinMove, ahk_id %curid%, , winData.origX, winData.origY, 20, 20
                     WinSet, Transparent, %TRANS_MIN%, ahk_id %curid%
                     winData.isHidden := True
-                } else {
-
                 }
             }
         }
+    }
+    if (resizetimer > 0) {
+        resizetimer := resizetimer - 1
+        ; ToolTip, %resizetimer%
     }
 
     Sleep, 30
