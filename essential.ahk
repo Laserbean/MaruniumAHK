@@ -129,6 +129,29 @@ Return
 #+WheelUp::
     Send, #+{Left}
 Return
+
+#IfWinActive ahk_class CabinetWClass
+
++F2::
+    KeyWait, Shift, U
+
+    Send, !{Up}
+    Sleep, 100
+    Send, {F2}
+
+    KeyWait, Enter, D
+
+    if (ErrorLevel) {
+        ToolTip, ERROR
+        Sleep, 100
+        ToolTip
+    }
+    Sleep, 100
+    Send, {Enter}
+Return
+
+#IfWinActive
+
 ;#endregion
 
 ; ~^+t::
