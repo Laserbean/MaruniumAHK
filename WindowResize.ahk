@@ -65,6 +65,8 @@ return
     MouseGetPos, KDE_X1, KDE_Y1, KDE_id
     WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
 
+    WinActivate, ahk_id %KDE_id%
+
     If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 )and (A_PriorHotkey = "#LButton" or A_PriorHotkey = "+#LButton") {
 
         ; WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
@@ -141,15 +143,22 @@ Return
         return
     }
 
+
+
     ; Get the initial mouse position and window id
 
     WinGet, state, MinMax, ahk_id %KDE_id%
+
+
 
     if (state = 1) {
         Gosub, UnMaximise
     }
 
     MouseGetPos, KDE_X1, KDE_Y1, KDE_id
+
+    WinActivate, ahk_id %KDE_id%
+
 
     init_x := KDE_X1
     init_y := KDE_Y1

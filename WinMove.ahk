@@ -125,7 +125,19 @@ Return
 
 ;Shift + Windows + Up (maximize a window across all displays) https://stackoverflow.com/a/9830200/470749
 +#Up::
+    ; MouseGetPos, curx, cury , activeId, control
+    ; WinGetTitle, Title, ahk_id %activeId%
+
     WinGetActiveTitle, Title
+
+    ; WinGet, active_id, ID, A
+    ; if (active_id != activeId) {
+    ;     ToolTip, Error. Activate window to make full screen
+    ;     Sleep, 300
+    ;     ToolTip
+    ;     return
+    ; }
+
     WinRestore, %Title%
     SysGet, X1, 76
     SysGet, Y1, 77
