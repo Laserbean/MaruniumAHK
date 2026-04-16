@@ -80,10 +80,28 @@ return
         Return
     }
 
-    If KDE_Win
-        return
+    isFullScreen := KDE_Win
+
     ; Get the initial window position.
     WinGetPos, KDE_WinX1, KDE_WinY1, win_width, win_height, ahk_id %KDE_id%
+
+    If isFullScreen {
+        WinRestore, ahk_id %KDE_id%
+        WinGetPos, KDE_WinX1, KDE_WinY1, win_width, win_height, ahk_id %KDE_id%
+
+        MouseGetPos, KDE_X2, KDE_Y2 ; Get the current mouse position.
+        
+        ; Center window on cursor
+        KDE_X22 := KDE_X2 - (win_width / 2)
+        KDE_Y22 := KDE_Y2 - (win_height / 2)
+
+        WinMove, ahk_id %KDE_id%,, KDE_X22, KDE_Y22 
+
+        WinGetPos, KDE_WinX1, KDE_WinY1, win_width, win_height, ahk_id %KDE_id%
+
+        Sleep, 100
+        ; return
+    }
 
     win_width := win_width - 30
     win_height := win_height - 30
@@ -117,6 +135,9 @@ return
     }
     WinMove, ahk_id %KDE_id%, , %KDE_WinX2%, %KDE_WinY2% ; Move the window to the new position.
 
+    If isFullScreen
+        WinMaximize, ahk_id %KDE_id%
+
 return
 
 ; ; IsOutOfScreen() {
@@ -143,13 +164,9 @@ Return
         return
     }
 
-
-
     ; Get the initial mouse position and window id
 
     WinGet, state, MinMax, ahk_id %KDE_id%
-
-
 
     if (state = 1) {
         Gosub, UnMaximise
@@ -158,7 +175,6 @@ Return
     MouseGetPos, KDE_X1, KDE_Y1, KDE_id
 
     WinActivate, ahk_id %KDE_id%
-
 
     init_x := KDE_X1
     init_y := KDE_Y1
