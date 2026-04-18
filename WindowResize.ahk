@@ -67,6 +67,7 @@ return
 
     WinActivate, ahk_id %KDE_id%
 
+    ; ToolTip,  %A_TimeSincePriorHotkey%
     If (A_TimeSincePriorHotkey<400) and (A_TimeSincePriorHotkey<>-1 )and (A_PriorHotkey = "#LButton" or A_PriorHotkey = "+#LButton") {
 
         ; WinGet, KDE_Win, MinMax, ahk_id %KDE_id%
@@ -99,7 +100,7 @@ return
 
         WinGetPos, KDE_WinX1, KDE_WinY1, win_width, win_height, ahk_id %KDE_id%
 
-        Sleep, 100
+        ; Sleep, 100
         ; return
     }
 
@@ -127,6 +128,7 @@ return
                 KDE_Y2 := 0
             }
         }
+
 
         KDE_WinX2 := (KDE_WinX1 + KDE_X2) ; Apply this offset to the window position.
         KDE_WinY2 := (KDE_WinY1 + KDE_Y2)
