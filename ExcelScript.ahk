@@ -81,6 +81,7 @@ SetWorkingDir, %A_ScriptDir%
         sleep, 300
         Send, ^+{s}
     Return
+    
 #IfWinActive
 
 #IfWinActive ahk_exe WINWORD.EXE
