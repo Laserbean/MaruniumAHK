@@ -62,14 +62,26 @@ SetWorkingDir, %A_ScriptDir%
 
 #IfWinActive
 
-Clipboardbackup := ""
-^!v::
-    Clipboardbackup := ClipboardAll
-    Clipboard := Clipboard
-    Send ^v
-    Sleep, 300
-    Clipboard := Clipboardbackup
-Return
+#IfWinNotActive, ahk_exe paintdotnet.exe
+    Clipboardbackup := ""
+    ^!v::
+        Clipboardbackup := ClipboardAll
+        Clipboard := Clipboard
+        Send ^v
+        Sleep, 300
+        Clipboard := Clipboardbackup
+    Return
+#IfWinActive
+
+#IfWinActive, ahk_exe paintdotnet.exe
+    ^e::
+        Send, ^+{c}
+        sleep, 300
+        Send, ^!{v}
+        sleep, 300
+        Send, ^+{s}
+    Return
+#IfWinActive
 
 #IfWinActive ahk_exe WINWORD.EXE
     +^s::
