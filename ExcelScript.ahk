@@ -22,12 +22,20 @@ SetWorkingDir, %A_ScriptDir%
     ;     Send, {BackSpace}
     ; Return
 
-    +WheelDown:: ; Shift + Mouse Wheel Down
-        Send {WheelRight 2} ; Scroll right twice
+    ; +WheelDown:: ; Shift + Mouse Wheel Down
+    ;     Send {WheelRight 2} ; Scroll right twice
+    ; Return
+
+    ; +WheelUp:: ; Shift + Mouse Wheel Up
+    ;     Send {WheelLeft 2} ; Scroll left twice
+    ; Return
+
+    +WheelDown::
+        Send ^+{WheelDown} ; Sends Ctrl + Shift + WheelDown (Excel native scroll right)
     Return
 
-    +WheelUp:: ; Shift + Mouse Wheel Up
-        Send {WheelLeft 2} ; Scroll left twice
+    +WheelUp::
+        Send ^+{WheelUp}   ; Sends Ctrl + Shift + WheelUp (Excel native scroll left)
     Return
 
     !v::
@@ -81,7 +89,7 @@ SetWorkingDir, %A_ScriptDir%
         sleep, 300
         Send, ^+{s}
     Return
-    
+
 #IfWinActive
 
 #IfWinActive ahk_exe WINWORD.EXE
